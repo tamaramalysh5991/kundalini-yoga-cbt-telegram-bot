@@ -14,10 +14,12 @@ services:
 
   mongo:
     image: mongo:latest
+    ports:
+      - '27017:27017'
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
-      - MONGO_INITDB_DATABASE=your_database_name
+      - MONGO_INITDB_DATABASE=telegram_bot_db
     volumes:
       - mongo_data:/data/db
 
