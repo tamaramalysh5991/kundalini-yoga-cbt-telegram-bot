@@ -1,7 +1,7 @@
 from aiogram import Bot, Dispatcher
 
 from db_service import users_collection
-from config import Config
+from bot.config import Config
 from aiogram.fsm.storage.memory import MemoryStorage
 from handlers import router
 import asyncio

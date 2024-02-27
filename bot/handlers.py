@@ -2,7 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 
-from db_service import users_collection
+from .db_service import  update_user, add_user, get_user
 
 router = Router()
 
@@ -13,21 +13,14 @@ async def command_start_handler(message: Message) -> None:
     """
     This handler receives messages with `/start` command
     """
-    user_info = {
-        "user_id": message.from_user.id,
-        "username": message.from_user.full_name,
-        "chat_id": message.chat.id,
-        "status": "active",
-    }
-    existing_user = users_collection.find_one({"user_id": user_info["user_id"]})
+    user_id = message.from_user.id
+    user = get_user(user_id)
 
-    if existing_user:
-        users_collection.update_one(
-            {"user_id": user_info["user_id"]}, {"$set": {"status": "active"}}
-        )
+    if user:
+        update_user(message.from_user.id, message)
         await message.reply("C возвращением!")
 
-    users_collection.insert_one(user_info)
+    add_user(user_id, message)
     await message.answer(f"Привет {message.from_user.full_name}!")
 
 
@@ -40,3 +33,22 @@ async def command_help_handler(message: Message) -> None:
         "Это бот для кундалини йоги. Он поможет вам следить за вашими достижениями и прогрессом."
         "Для начала работы введите команду /start."
     )
+
+
+@router.message()
+async def echo_message(message: Message) -> None:
+    """
+    This handler is called when the bot receives any message
+    """
+    await message.answer(f"Вы написали: {message.text}")
+
+
+@router.message(Command("set_time"))
+async def set_time(message: Message) -> None:
+    """
+    This handler is called when user set time for reminder to do kundalini yoga
+    """
+    user_id = message.from_user.id
+    user = get_user(user_id)
+    update_user(user_id, message)
+    await message.answer(f"Время установлено на {user['reminder_time']}")
